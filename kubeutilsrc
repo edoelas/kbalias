@@ -1,0 +1,122 @@
+#export KUBECONFIG=~/.kube/config.yaml
+
+export PATH=~/kubeonboard/bin:$PATH
+
+alias fzflist="fzf --height=13 --border --reverse --pointer '>' "
+alias fzftab="fzflist --header-lines=1 --color 'header:reverse'"
+alias kk='kubectl'
+
+alias kkge='kubectl get'
+
+# set namespace fzf
+function kkns() {
+    local current_ns=$(kubectl config view --minify --output 'jsonpath={..namespace}' | tr -d "\n"; echo;)
+    local new_ns=$(kubectl get ns --no-headers | fzflist --header="current: $current_ns" | awk '{print $1}' )
+    kubectl config set-context --current --namespace="$new_ns"
+}
+
+# set context fzf
+function kkco(){
+    local current_context=$(kubectl config current-context)
+    local context=$(kubectl config get-contexts --no-headers | fzflist --header="current: $current_context" | awk '{print $1}')
+    kubectl config use-context $context
+}
+
+# forward port fzf
+function kkpf(){
+    local svc=$(kubectl get svc | fzftab | awk '{print $1}')
+    local origin_port=$(kubectl get svc --no-headers $svc -o='jsonpath={.spec.ports}' | jq -r '(.[] | [.port, .protocol, .name]) | @tsv' | fzflist --select-1 | awk '{print $1}')
+    kubectl port-forward service/$svc :$origin_port
+}
+
+# see nice logs with fzf, bat and yq
+function kklo(){
+    # Add case when it is not json
+    local pod=$(kubectl get pods | fzftab | awk '{print $1}')
+    kubectl logs $pod | fzf --ansi --tail 100000 --tac --no-sort --exact --wrap --highlight-line \
+    --preview 'echo {} | yq -P | bat --color=always --style=numbers --line-range=:500 --language yaml' \
+    --preview-window=bottom:20:wrap
+}
+
+# kubectl describe fzf
+function kkde(){
+    local resource=$1
+    local name=$(kubectl get $resource -o name | fzflist)
+    kubectl describe $name
+}
+
+# kubectl get yaml fzf
+function kkoy(){
+    local resource=$1
+    local name=$(kubectl get $resource -o name | fzflist)
+    kubectl get $name -o yaml
+}
+
+# kubectl exec bash fzf
+function kkex(){
+    local pod=$(kubectl get pods -o name | fzflist | sed 's|^pod/||')
+    kubectl exec -it $pod -- bash
+}
+
+# print commands help
+function kkhelp(){
+    echo "kk    - alias for kubectl"
+    echo "kkns  - set namespace with fzf"
+    echo "kkco  - set context with fzf"
+    echo "kkge  - alias for kubectl get"
+    echo "kkpf  - port forward service with fzf"
+    echo "kklo  - see pod logs with fzf, bat and yq"
+    echo "kkde  - kubectl describe resource with fzf"
+    echo "kkoy  - kubectl get resource yaml with fzf"
+    echo "kkex  - kubectl exec bash into pod with fzf"
+}
+
+# if code is available, use it as the editor, else use vim
+if code -v >/dev/null 2>&1; then
+    export KUBE_EDITOR="code --wait"
+else
+    export KUBE_EDITOR="vi"
+fi
+
+# kube-ps1 prompt integration
+source ~/kubeonboard/bin/kube-ps1.sh
+KUBE_PS1_BINARY=~/kubeonboard/bin/kubectl
+KUBE_PS1_SYMBOL_ENABLE=false
+KUBE_PS1_SEPARATOR=''
+PS1=' $(kube_ps1) \s-\v \w \$ '
+
+
+# Magia
+# === Tabla de atajos personalizados de recursos ===
+declare -A K8S_SHORTCUTS=(
+    [po]="pod"
+    [sv]="service"
+    [dp]="deployment"
+    [cm]="configmap"
+    [ns]="namespace"
+    [no]="node"
+    [cr]="customresourcedefinition"
+)
+
+# === Preprocesador para kkgeXX ===
+preprocess_command() {
+    local cmdline
+    cmdline=$(HISTTIMEFORMAT= history 1 | sed 's/^[ ]*[0-9]*[ ]*//')
+
+    # Coincide con kkge + dos letras
+    if [[ $cmdline =~ ^kkge([a-z]{2})([[:space:]].*)?$ ]]; then
+        local short="${BASH_REMATCH[1]}"
+        local rest="${BASH_REMATCH[2]}"
+
+        # Buscamos en la tabla
+        local resource="${K8S_SHORTCUTS[$short]}"
+
+        if [[ -n "$resource" ]]; then
+            local newcmd="kubectl get $resource${rest:-}"
+            READLINE_LINE="$newcmd"
+            READLINE_POINT=${#READLINE_LINE}
+        fi
+    fi
+}
+
+trap 'preprocess_command' DEBUG

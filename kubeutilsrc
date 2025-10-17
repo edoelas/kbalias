@@ -138,17 +138,20 @@ kkrs() {
 command_not_found_handle() {
   local cmd="$1"; shift
 
-  # Coincidimos con kk + acción (2-3 letras) + recurso (2 letras)
+  # Coincidimos con kk + acción (2 letras) + recurso (2 letras)
   if [[ $cmd =~ ^kk([a-z]{2})([a-z]{2})$ ]]; then
-
     local action_key="${BASH_REMATCH[1]}"
     local resource_key="${BASH_REMATCH[2]}"
-    
+
     local resource="${K8S_RESOURCE_SHORTCUTS[$resource_key]}"
     local action="${K8S_ACTION_SHORTCUTS[$action_key]}"
 
-    if [[ -n $action && -n $resource ]]; then
-      
+    if [[ -n $action ]]; then
+      # Si no hay recurso en el mapa → pedirlo con kkrs
+      if [[ -z $resource ]]; then
+        resource=$(kkrs) || return 1
+      fi
+
       local expanded="$action $resource $*"
       echo -e "\033[34m$expanded\033[0m"
 

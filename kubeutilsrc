@@ -122,7 +122,6 @@ declare -A K8S_ACTION_SHORTCUTS=(
 )
 
 kkrs() {
-  # Construir lista de abreviaciones en formato "po -> pods"
   local selection
   selection=$(
     for key in "${!K8S_RESOURCE_SHORTCUTS[@]}"; do
@@ -130,13 +129,9 @@ kkrs() {
     done | sort | fzf --prompt="🌐 Recurso: " --height=80%
   ) || return 1
 
-  # Extraer la abreviatura seleccionada (lo que está antes del " -> ")
-  local abbrev="${selection%% *}"
-
-  # Ejecutar kkge<abbrev>
-  local cmd="kkge${abbrev}"
-  echo -e "\033[34m$cmd\033[0m"
-  $cmd
+  # Extraer la parte después de " -> "
+  local resource="${selection#*-> }"
+  echo -n "$resource"
 }
 
 # === Preprocesador unificado ===

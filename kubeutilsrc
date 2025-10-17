@@ -41,6 +41,9 @@ function kkge() {
     kubectl get "$@"
 }
 
+function kkxp() {
+    kubectl explain "$@"
+}
 
 # kubectl describe fzf
 function kkde(){
@@ -122,6 +125,7 @@ declare -A K8S_RESOURCE_SHORTCUTS=(
 
 declare -A K8S_ACTION_SHORTCUTS=(
   [ge]=kkge
+  [xp]=kkxp
   [de]=kkde
   [oy]=kkoy
 )

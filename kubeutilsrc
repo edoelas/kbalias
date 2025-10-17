@@ -38,14 +38,7 @@ function kklo(){
 
 # kubectl get fzf
 function kkge() {
-    local resource
-
-    if [[ $# -eq 0 ]]; then
-        resource=$(kkrs) || return 1  # si kkrs falla (ESC), salimos
-        kubectl get "$resource"
-    else
-        kubectl get "$@"
-    fi
+    kubectl get "$@"
 }
 
 
@@ -138,7 +131,7 @@ kkrs() {
 
   # Extraer la parte después de " -> "
   local resource="${selection#*-> }"
-  echo -n "$resource"
+  echo "$resource"
 }
 
 # === Preprocesador unificado ===

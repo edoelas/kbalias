@@ -37,7 +37,7 @@ function kklo(){
 }
 
 # kubectl get fzf
-kkge() {
+function kkge() {
     local resource
 
     if [[ $# -eq 0 ]]; then

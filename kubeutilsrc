@@ -92,13 +92,27 @@ PS1=' $(kube_ps1) \s-\v \w \$ '
 # Magia
 # === Tabla de recursos (2 letras) ===
 declare -A K8S_RESOURCE_SHORTCUTS=(
-  [po]="pod"
-  [sv]="service"
+  [no]="nodes"
+  [ns]="namespaces"
   [dp]="deployment"
+  [st]="statefulset"
+  [po]="pods"
+  [sv]="service"
+  [in]="ingress"
+  [ir]="ingressroute.traefik.io"
+  [se]="secret"
   [cm]="configmap"
-  [ns]="namespace"
-  [no]="node"
-  [cr]="customresourcedefinition"
+  [sa]="serviceaccount"
+  [rd]="customresourcedefinition"
+  [vr]="vulnerabilityreport"
+  [ro]="role"
+  [rb]="rolebinding"
+  [cr]="clusterrole"
+  [cb]="clusterrolebinding"
+  [pv]="persistentvolume"
+  [pc]="persistentvolumeclaim"
+  [pe]="piolinexporter"
+  [ar]="all"
 )
 
 declare -A K8S_ACTION_SHORTCUTS=(
@@ -106,6 +120,24 @@ declare -A K8S_ACTION_SHORTCUTS=(
   [de]=kkde
   [oy]=kkoy
 )
+
+kkrs() {
+  # Construir lista de abreviaciones en formato "po -> pods"
+  local selection
+  selection=$(
+    for key in "${!K8S_RESOURCE_SHORTCUTS[@]}"; do
+      echo "$key -> ${K8S_RESOURCE_SHORTCUTS[$key]}"
+    done | sort | fzf --prompt="🌐 Recurso: " --height=80%
+  ) || return 1
+
+  # Extraer la abreviatura seleccionada (lo que está antes del " -> ")
+  local abbrev="${selection%% *}"
+
+  # Ejecutar kkge<abbrev>
+  local cmd="kkge${abbrev}"
+  echo -e "\033[34m$cmd\033[0m"
+  $cmd
+}
 
 # === Preprocesador unificado ===
 command_not_found_handle() {

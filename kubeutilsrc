@@ -37,8 +37,15 @@ function kklo(){
 }
 
 # kubectl get fzf
-function kkge() {
-    kubectl get "$@"
+kkge() {
+    local resource
+
+    if [[ $# -eq 0 ]]; then
+        resource=$(kkrs) || return 1  # si kkrs falla (ESC), salimos
+        kubectl get "$resource"
+    else
+        kubectl get "$@"
+    fi
 }
 
 

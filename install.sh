@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LINE="source ~/kubeonboard/kubeutilsrc"
+LINE="source ~/kbalias/kubeutilsrc"
 FILE="$HOME/.bashrc"
 
 grep -qxF "$LINE" "$FILE" || echo "$LINE" >> "$FILE"

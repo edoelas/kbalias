@@ -73,6 +73,7 @@ function kkhelp(){
     echo "kkpf - port forward service with fzf"
     echo "kklo - see pod logs with fzf, bat and yq"
     echo "kkex - kubectl exec bash into pod with fzf"
+    echo "kkxp - kubectl explain"
     echo "kkrs - list all resource aliases"
     echo ""
     echo "kkge [resource_type] - alias for kubectl get"

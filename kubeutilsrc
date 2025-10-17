@@ -148,7 +148,7 @@ command_not_found_handle() {
 
     if [[ -n $action ]]; then
       # Si no hay recurso en el mapa → pedirlo con kkrs
-      if [[ -z $resource ]]; then
+      if [[ $resource_key == "rs" ]]; then
         resource=$(kkrs) || return 1
       fi
 

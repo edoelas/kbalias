@@ -1,6 +1,6 @@
 #export KUBECONFIG=~/.kube/config.yaml
 
-export PATH=~/kubeonboard/bin:$PATH
+export PATH=~/kbalias/bin:$PATH
 
 alias fzflist="fzf --height=13 --border --reverse --pointer '>' "
 alias fzftab="fzflist --header-lines=1 --color 'header:reverse'"
@@ -79,8 +79,7 @@ else
 fi
 
 # kube-ps1 prompt integration
-source ~/kubeonboard/bin/kube-ps1.sh
-KUBE_PS1_BINARY=~/kubeonboard/bin/kubectl
+source ~/kbalias/bin/kube-ps1.sh
 KUBE_PS1_SYMBOL_ENABLE=false
 KUBE_PS1_SEPARATOR=''
 PS1=' $(kube_ps1) \s-\v \w \$ '

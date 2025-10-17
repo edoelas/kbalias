@@ -86,36 +86,47 @@ PS1=' $(kube_ps1) \s-\v \w \$ '
 
 
 # Magia
-# === Tabla de atajos personalizados de recursos ===
-declare -A K8S_SHORTCUTS=(
-    [po]="pod"
-    [sv]="service"
-    [dp]="deployment"
-    [cm]="configmap"
-    [ns]="namespace"
-    [no]="node"
-    [cr]="customresourcedefinition"
+# === Tabla de recursos (2 letras) ===
+declare -A K8S_RESOURCE_SHORTCUTS=(
+  [po]="pod"
+  [sv]="service"
+  [dp]="deployment"
+  [cm]="configmap"
+  [ns]="namespace"
+  [no]="node"
+  [cr]="customresourcedefinition"
 )
 
-# === Preprocesador para kkgeXX ===
-preprocess_command() {
-    local cmdline
-    cmdline=$(HISTTIMEFORMAT= history 1 | sed 's/^[ ]*[0-9]*[ ]*//')
+declare -A K8S_ACTION_SHORTCUTS=(
+  [ge]=kkge
+  [de]=kkde
+  [oy]=kkoy
+)
 
-    # Coincide con kkge + dos letras
-    if [[ $cmdline =~ ^kkge([a-z]{2})([[:space:]].*)?$ ]]; then
-        local short="${BASH_REMATCH[1]}"
-        local rest="${BASH_REMATCH[2]}"
+# === Preprocesador unificado ===
+command_not_found_handle() {
+  local cmd="$1"; shift
 
-        # Buscamos en la tabla
-        local resource="${K8S_SHORTCUTS[$short]}"
+  # Coincidimos con kk + acción (2-3 letras) + recurso (2 letras)
+  if [[ $cmd =~ ^kk([a-z]{2})([a-z]{2})$ ]]; then
 
-        if [[ -n "$resource" ]]; then
-            local newcmd="kubectl get $resource${rest:-}"
-            READLINE_LINE="$newcmd"
-            READLINE_POINT=${#READLINE_LINE}
-        fi
+    local action_key="${BASH_REMATCH[1]}"
+    local resource_key="${BASH_REMATCH[2]}"
+    
+    local resource="${K8S_RESOURCE_SHORTCUTS[$resource_key]}"
+    local action="${K8S_ACTION_SHORTCUTS[$action_key]}"
+
+    if [[ -n $action && -n $resource ]]; then
+      
+      local expanded="$action $resource $*"
+      echo -e "\033[34m$expanded\033[0m"
+
+      "$action" "$resource" "$@"
+      return $?
     fi
-}
+  fi
 
-trap 'preprocess_command' DEBUG
+  # Fallback estándar
+  printf "%s: command not found\n" "$cmd" >&2
+  return 127
+}

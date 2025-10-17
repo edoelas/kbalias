@@ -6,8 +6,6 @@ alias fzflist="fzf --height=13 --border --reverse --pointer '>' "
 alias fzftab="fzflist --header-lines=1 --color 'header:reverse'"
 alias kk='kubectl'
 
-alias kkge='kubectl get'
-
 # set namespace fzf
 function kkns() {
     local current_ns=$(kubectl config view --minify --output 'jsonpath={..namespace}' | tr -d "\n"; echo;)
@@ -37,6 +35,12 @@ function kklo(){
     --preview 'echo {} | yq -P | bat --color=always --style=numbers --line-range=:500 --language yaml' \
     --preview-window=bottom:20:wrap
 }
+
+# kubectl get fzf
+function kkge() {
+    kubectl get "$@"
+}
+
 
 # kubectl describe fzf
 function kkde(){

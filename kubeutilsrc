@@ -64,15 +64,22 @@ function kkex(){
 
 # print commands help
 function kkhelp(){
-    echo "kk    - alias for kubectl"
-    echo "kkns  - set namespace with fzf"
-    echo "kkco  - set context with fzf"
-    echo "kkge  - alias for kubectl get"
-    echo "kkpf  - port forward service with fzf"
-    echo "kklo  - see pod logs with fzf, bat and yq"
-    echo "kkde  - kubectl describe resource with fzf"
-    echo "kkoy  - kubectl get resource yaml with fzf"
-    echo "kkex  - kubectl exec bash into pod with fzf"
+    echo "kk   - alias for kubectl"
+    echo "kkns - set namespace with fzf"
+    echo "kkco - set context with fzf"
+    echo "kkpf - port forward service with fzf"
+    echo "kklo - see pod logs with fzf, bat and yq"
+    echo "kkex - kubectl exec bash into pod with fzf"
+    echo "kkrs - list all resource aliases"
+    echo "\n"
+    echo "Resourced:"
+    echo "kkge [resource_type] - alias for kubectl get"
+    echo "kkde [resource_type] - kubectl describe resource with fzf"
+    echo "kkoy [resource_type] - kubectl get resource yaml with fzf"
+    echo "\n"
+    echo "Magic:"
+    echo "kk[action][resource_abbr] - no need to write a space, uses resource abreviation"
+    echo "kk[action]rs" - select resource type with kkrs""
 }
 
 # if code is available, use it as the editor, else use vim

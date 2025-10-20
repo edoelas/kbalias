@@ -121,6 +121,7 @@ declare -A K8S_RESOURCE_SHORTCUTS=(
   [pv]="persistentvolume"
   [pc]="persistentvolumeclaim"
   [pe]="piolinexporter"
+  [rt]="route"
   [ar]="all"
 )
 
